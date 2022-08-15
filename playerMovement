@@ -1,0 +1,96 @@
+using JetBrains.Annotations;
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Diagnostics.Tracing;
+using System.Threading;
+using TMPro;
+using UnityEngine;
+using UnityEngine.Rendering;
+
+public class PlayerMove : MonoBehaviour
+{
+    public CharacterController characterController;
+    public Rigidbody rb;
+    public float walkSpeed;
+    public float verticalSpeed = 10f;
+    public float gravity = 9.87f;
+    public bool crouching;
+    public bool running;
+
+    public BoxCollider col;
+    public Vector3 jump;
+    public GameObject gun;
+
+    public Vector3 velocity;
+    public bool GameIsPaused = false;
+
+    void Awake()
+    {
+    }
+
+    void Start()
+    {
+        jump = new Vector3(0.0f, 8.0f, 0.0f);
+    }
+
+
+
+    void Update()
+    {
+        while (!GameIsPaused)
+        {
+            float x = Input.GetAxis("Horizontal");
+            float z = Input.GetAxis("Vertical");
+
+            Vector3 move = transform.right * x + transform.forward * z;
+            characterController.Move(move * walkSpeed * Time.deltaTime);
+
+            characterController.Move(velocity * Time.deltaTime);
+
+            if (characterController.isGrounded) verticalSpeed = 0;
+            else velocity.y -= gravity * Time.deltaTime;
+
+
+            if (Input.GetKey(KeyCode.LeftControl) && !running)
+            {
+                crouching = true;
+            }
+            else
+                crouching = false;
+
+
+            if (Input.GetKey(KeyCode.LeftShift) && !running)
+            {
+                running = true;
+            }
+            else
+            {
+                running = false;
+            }
+
+            if (running == true)
+            {
+                walkSpeed = walkSpeed * 1.5f;
+            }
+            else
+            {
+                walkSpeed = 12f;
+            }
+            if (crouching == true)
+            {
+                characterController.height = 2f;
+                Vector3 local = transform.localScale;
+                transform.localScale = new Vector3(1.7f, 0.7f, 1.7f);
+                walkSpeed -= walkSpeed / 2;
+
+            }
+            else
+            {
+                characterController.height = 3.5f;
+                Vector3 local = transform.localScale;
+                transform.localScale = new Vector3(1.5f, 1.5f, 1.5f);
+            }
+        }
+    }
+}
